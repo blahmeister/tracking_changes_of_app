@@ -1,6 +1,5 @@
 package org.schabi.newpipe.about;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -40,7 +39,7 @@ public class LicenseFragment extends Fragment {
      * @param license the license to show
      */
     public static void showLicense(Context context, License license) {
-        new LicenseFragmentHelper((Activity) context).execute(license);
+        new LicenseFragmentHelper().execute(context, license);
     }
 
     @Override

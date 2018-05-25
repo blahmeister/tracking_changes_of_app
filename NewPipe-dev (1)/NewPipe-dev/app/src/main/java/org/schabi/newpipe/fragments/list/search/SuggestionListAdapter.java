@@ -63,15 +63,24 @@ public class SuggestionListAdapter extends RecyclerView.Adapter<SuggestionListAd
     public void onBindViewHolder(SuggestionItemHolder holder, int position) {
         final SuggestionItem currentItem = getItem(position);
         holder.updateFrom(currentItem);
-        holder.queryView.setOnClickListener(v -> {
-            if (listener != null) listener.onSuggestionItemSelected(currentItem);
+        holder.queryView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listener != null) listener.onSuggestionItemSelected(currentItem);
+            }
         });
-        holder.queryView.setOnLongClickListener(v -> {
+        holder.queryView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
                 if (listener != null) listener.onSuggestionItemLongClick(currentItem);
                 return true;
+            }
         });
-        holder.insertView.setOnClickListener(v -> {
-            if (listener != null) listener.onSuggestionItemInserted(currentItem);
+        holder.insertView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listener != null) listener.onSuggestionItemInserted(currentItem);
+            }
         });
     }
 

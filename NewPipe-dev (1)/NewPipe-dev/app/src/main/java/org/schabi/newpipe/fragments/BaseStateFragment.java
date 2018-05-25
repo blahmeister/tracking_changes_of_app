@@ -239,8 +239,7 @@ public abstract class BaseStateFragment<I> extends BaseFragment implements ViewC
         if (rootView == null && getView() != null) rootView = getView();
         if (rootView == null) return;
 
-        ErrorActivity.reportError(getContext(), exception, MainActivity.class, rootView,
-                ErrorActivity.ErrorInfo.make(userAction, serviceName, request, errorId));
+        ErrorActivity.reportError(getContext(), exception, MainActivity.class, rootView, ErrorActivity.ErrorInfo.make(userAction, serviceName, request, errorId));
     }
 
     /*//////////////////////////////////////////////////////////////////////////

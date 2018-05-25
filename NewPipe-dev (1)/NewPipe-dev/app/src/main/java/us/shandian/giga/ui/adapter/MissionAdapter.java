@@ -1,14 +1,11 @@
 package us.shandian.giga.ui.adapter;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.content.FileProvider;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
@@ -27,7 +24,6 @@ import android.widget.Toast;
 import org.schabi.newpipe.R;
 
 import java.io.File;
-import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -50,13 +46,13 @@ public class MissionAdapter extends RecyclerView.Adapter<MissionAdapter.ViewHold
         ALGORITHMS.put(R.id.sha1, "SHA1");
     }
 
-    private Activity mContext;
+    private Context mContext;
     private LayoutInflater mInflater;
     private DownloadManager mManager;
     private DownloadManagerService.DMBinder mBinder;
     private int mLayout;
 
-    public MissionAdapter(Activity context, DownloadManagerService.DMBinder binder, DownloadManager manager, boolean isLinear) {
+    public MissionAdapter(Context context, DownloadManagerService.DMBinder binder, DownloadManager manager, boolean isLinear) {
         mContext = context;
         mManager = manager;
         mBinder = binder;
@@ -251,7 +247,7 @@ public class MissionAdapter extends RecyclerView.Adapter<MissionAdapter.ViewHold
                     case R.id.md5:
                     case R.id.sha1:
                         DownloadMission mission = mManager.getMission(h.position);
-                        new ChecksumTask(mContext).execute(mission.location + "/" + mission.name, ALGORITHMS.get(id));
+                        new ChecksumTask().execute(mission.location + "/" + mission.name, ALGORITHMS.get(id));
                         return true;
                     default:
                         return false;
@@ -356,26 +352,18 @@ public class MissionAdapter extends RecyclerView.Adapter<MissionAdapter.ViewHold
 
     }
 
-    private static class ChecksumTask extends AsyncTask<String, Void, String> {
+    private class ChecksumTask extends AsyncTask<String, Void, String> {
         ProgressDialog prog;
-        WeakReference<Activity> weakReference;
-
-        ChecksumTask(@NonNull Activity activity) {
-            weakReference = new WeakReference<>(activity);
-        }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
 
-            Activity activity = getActivity();
-            if (activity != null) {
-                // Create dialog
-                prog = new ProgressDialog(activity);
-                prog.setCancelable(false);
-                prog.setMessage(activity.getString(R.string.msg_wait));
-                prog.show();
-            }
+            // Create dialog
+            prog = new ProgressDialog(mContext);
+            prog.setCancelable(false);
+            prog.setMessage(mContext.getString(R.string.msg_wait));
+            prog.show();
         }
 
         @Override
@@ -386,24 +374,8 @@ public class MissionAdapter extends RecyclerView.Adapter<MissionAdapter.ViewHold
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-
-            if (prog != null) {
-                Utility.copyToClipboard(prog.getContext(), result);
-                if (getActivity() != null) {
-                    prog.dismiss();
-                }
-            }
-        }
-
-        @Nullable
-        private Activity getActivity() {
-            Activity activity = weakReference.get();
-
-            if (activity != null && activity.isFinishing()) {
-                return null;
-            } else {
-                return activity;
-            }
+            prog.dismiss();
+            Utility.copyToClipboard(mContext, result);
         }
     }
 }

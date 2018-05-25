@@ -22,6 +22,7 @@
         android:scaleType="centerCrop"
         android:src="@drawable/dummy_thumbnail"
         tools:ignore="RtlHardcoded"/>
+    <!-- wearml would probably work here-->
 
     <TextView
         android:id="@+id/itemDurationView"
@@ -68,5 +69,6 @@
         android:lines="1"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textSize="@dimen/video_item_search_uploader_text_size"
-        tools:text="Uploader" />
+        tools:text="Uploader"
+        />
 </RelativeLayout>

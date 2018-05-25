@@ -4,7 +4,7 @@
         <item name="colorPrimary">@android:color/transparent</item>
         <item name="colorPrimaryDark">@android:color/transparent</item>
         <item name="colorAccent">@android:color/transparent</item>
-
+        <item name="android:windowFullscreen">true</item>
         <item name="android:windowBackground">@color/dark_background_color</item>
     </style>
 
@@ -56,7 +56,7 @@
         <item name="contrast_background_color">@color/light_contrast_background_color</item>
         <item name="checked_selector_drawable">@drawable/light_checked_selector</item>
         <item name="queue_background_color">@color/light_queue_background_color</item>
-        <item name="toolbar_shadow_drawable">@drawable/toolbar_shadow_light</item>
+        <item name="toolbar_shadow_drawable"></item>
         <item name="selector_drawable">@drawable/light_selector</item>
         <item name="colorControlHighlight">@color/light_ripple_color</item>
 
@@ -113,7 +113,7 @@
         <item name="contrast_background_color">@color/dark_contrast_background_color</item>
         <item name="checked_selector_drawable">@drawable/dark_checked_selector</item>
         <item name="queue_background_color">@color/dark_queue_background_color</item>
-        <item name="toolbar_shadow_drawable">@drawable/toolbar_shadow_dark</item>
+        <item name="toolbar_shadow_drawable"></item>
         <item name="selector_drawable">@drawable/dark_selector</item>
         <item name="colorControlHighlight">@color/dark_ripple_color</item>
 

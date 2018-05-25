@@ -27,10 +27,10 @@ import org.schabi.newpipe.extractor.ServiceList;
 import org.schabi.newpipe.extractor.StreamingService;
 import org.schabi.newpipe.extractor.kiosk.KioskList;
 import org.schabi.newpipe.fragments.list.channel.ChannelFragment;
-import org.schabi.newpipe.local.feed.FeedFragment;
+import org.schabi.newpipe.fragments.list.feed.FeedFragment;
 import org.schabi.newpipe.fragments.list.kiosk.KioskFragment;
-import org.schabi.newpipe.local.bookmark.BookmarkFragment;
-import org.schabi.newpipe.local.subscription.SubscriptionFragment;
+import org.schabi.newpipe.fragments.local.bookmark.BookmarkFragment;
+import org.schabi.newpipe.fragments.subscription.SubscriptionFragment;
 import org.schabi.newpipe.report.ErrorActivity;
 import org.schabi.newpipe.report.UserAction;
 import org.schabi.newpipe.util.KioskTranslator;
@@ -101,22 +101,27 @@ public class MainFragment extends BaseFragment implements TabLayout.OnTabSelecte
     // Menu
     //////////////////////////////////////////////////////////////////////////*/
 
-    @Override
+    /**
+     * this is the line that sam used to take away the "...", but now the search is gone
+     * This is the actionbar, and it holds the methods to load the "..." and the search button
+     *
+     *
+     */ @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         if (DEBUG) Log.d(TAG, "onCreateOptionsMenu() called with: menu = [" + menu + "], inflater = [" + inflater + "]");
         inflater.inflate(R.menu.main_fragment_menu, menu);
-        SubMenu kioskMenu = menu.addSubMenu(Menu.NONE, Menu.NONE, 200, getString(R.string.kiosk));
-        try {
-            createKioskMenu(kioskMenu, inflater);
+        //SubMenu kioskMenu = menu.addSubMenu(Menu.NONE, Menu.NONE, 200, getString(R.string.kiosk));
+        /*try {
+            createKioskMenu(kioskMenu, inflater); // spcifically this stuff
         } catch (Exception e) {
             ErrorActivity.reportError(activity, e,
                     activity.getClass(),
                     null,
                     ErrorActivity.ErrorInfo.make(UserAction.UI_ERROR,
                             "none", "", R.string.app_ui_crash));
-        }
-
+        }*/
+        // this is the actionbar
         ActionBar supportActionBar = activity.getSupportActionBar();
         if (supportActionBar != null) {
             supportActionBar.setDisplayHomeAsUpEnabled(false);
@@ -129,6 +134,7 @@ public class MainFragment extends BaseFragment implements TabLayout.OnTabSelecte
             case R.id.action_search:
                 NavigationHelper.openSearchFragment(getFragmentManager(), ServiceHelper.getSelectedServiceId(activity), "");
                 return true;
+
         }
         return super.onOptionsItemSelected(item);
     }

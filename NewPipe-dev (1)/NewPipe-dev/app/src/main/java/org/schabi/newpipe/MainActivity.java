@@ -33,16 +33,14 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -52,7 +50,6 @@ import org.schabi.newpipe.extractor.StreamingService;
 import org.schabi.newpipe.fragments.BackPressable;
 import org.schabi.newpipe.fragments.MainFragment;
 import org.schabi.newpipe.fragments.detail.VideoDetailFragment;
-import org.schabi.newpipe.fragments.list.search.SearchFragment;
 import org.schabi.newpipe.report.ErrorActivity;
 import org.schabi.newpipe.util.Constants;
 import org.schabi.newpipe.util.NavigationHelper;
@@ -69,14 +66,66 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawer = null;
     private NavigationView drawerItems = null;
     private TextView headerServiceView = null;
+    private GridLayoutManager mGridLayoutManager;
 
+
+    /*//////////////////////////////////////////////////////////////////////////
+    // SSL exception workaround //william and sam worked on this part
+    //////////////////////////////////////////////////////////////////////////*/
+
+/**
+ * fixed the retry BS; I had to reset the date on the device because they were not 1:1 - sam
+    public MainActivity() {
+        // TODO: have to fix network problems also this code below is highly insecure// fixed now
+        // Create a trust manager that does not validate certificate chains
+        TrustManager[] trustAllCerts = new TrustManager[]{
+                new X509TrustManager() {
+                    @Override
+                    public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
+
+                    }
+
+                    @Override
+                    public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
+
+                    }
+
+                    @Override
+                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                        return null;
+                    }
+                }
+        };
+
+        // Install the all-trusting trust manager
+        try {
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+        } catch (NoSuchAlgorithmException | KeyManagementException e) {
+            e.printStackTrace();
+        }
+
+        // Create all-trusting host name verifier
+        HostnameVerifier allHostsValid = new HostnameVerifier() {
+            public boolean verify(String hostname, SSLSession session) {
+                return true;
+            }
+        };
+
+        // Install the all-trusting host verifier
+        HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+    }
+*/
     /*//////////////////////////////////////////////////////////////////////////
     // Activity's LifeCycle
     //////////////////////////////////////////////////////////////////////////*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if (DEBUG) Log.d(TAG, "onCreate() called with: savedInstanceState = [" + savedInstanceState + "]");
+        if (DEBUG)
+            Log.d(TAG, "onCreate() called with: savedInstanceState = [" + savedInstanceState + "]");
 
         ThemeHelper.setTheme(this, ServiceHelper.getSelectedServiceId(this));
 
@@ -96,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
         drawer = findViewById(R.id.drawer_layout);
         drawerItems = findViewById(R.id.navigation);
 
-        for(StreamingService s : NewPipe.getServices()) {
+        for (StreamingService s : NewPipe.getServices()) {
             final String title = s.getServiceInfo().getName() +
                     (ServiceHelper.isBeta(s) ? " (beta)" : "");
             final MenuItem item = drawerItems.getMenu()
@@ -106,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
 
         drawerItems.getMenu().getItem(ServiceHelper.getSelectedServiceId(this)).setChecked(true);
 
-        toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.drawer_open, R.string.drawer_close);
+        /*toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.drawer_open, R.string.drawer_close);
         toggle.syncState();
         drawer.addDrawerListener(toggle);
         drawer.addDrawerListener(new DrawerLayout.SimpleDrawerListener() {
@@ -125,8 +174,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        drawerItems.setNavigationItemSelectedListener(this::changeService);
-
+        drawerItems.setNavigationItemSelectedListener(this::changeService);*/
+        toolbar.setNavigationIcon(null);
         setupDrawerFooter();
         setupDrawerHeader();
     }
@@ -150,9 +199,8 @@ public class MainActivity extends AppCompatActivity {
         ImageButton history = findViewById(R.id.drawer_history);
 
         settings.setOnClickListener(view -> NavigationHelper.openSettings(this));
-        downloads.setOnClickListener(view ->NavigationHelper.openDownloads(this));
-        history.setOnClickListener(view ->
-                NavigationHelper.openStatisticFragment(getSupportFragmentManager()));
+        downloads.setOnClickListener(view -> NavigationHelper.openDownloads(this));
+        history.setOnClickListener(view -> NavigationHelper.openHistory(this));
     }
 
     private void setupDrawerHeader() {
@@ -181,13 +229,13 @@ public class MainActivity extends AppCompatActivity {
         // close drawer on return, and don't show animation, so its looks like the drawer isn't open
         // when the user returns to MainActivity
         drawer.closeDrawer(Gravity.START, false);
-        try {
+       /* try {
             String selectedServiceName = NewPipe.getService(
                     ServiceHelper.getSelectedServiceId(this)).getServiceInfo().getName();
             headerServiceView.setText(selectedServiceName);
         } catch (Exception e) {
             ErrorActivity.reportUiError(this, e);
-        }
+        }*/ //changed this to not throw errors -sam
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         if (sharedPreferences.getBoolean(Constants.KEY_THEME_CHANGE, false)) {
@@ -212,7 +260,8 @@ public class MainActivity extends AppCompatActivity {
             // Return if launched from a launcher (e.g. Nova Launcher, Pixel Launcher ...)
             // to not destroy the already created backstack
             String action = intent.getAction();
-            if ((action != null && action.equals(Intent.ACTION_MAIN)) && intent.hasCategory(Intent.CATEGORY_LAUNCHER)) return;
+            if ((action != null && action.equals(Intent.ACTION_MAIN)) && intent.hasCategory(Intent.CATEGORY_LAUNCHER))
+                return;
         }
 
         super.onNewIntent(intent);
@@ -238,8 +287,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        for (int i: grantResults){
-            if (i == PackageManager.PERMISSION_DENIED){
+        for (int i : grantResults) {
+            if (i == PackageManager.PERMISSION_DENIED) {
                 return;
             }
         }
@@ -297,26 +346,29 @@ public class MainActivity extends AppCompatActivity {
         if (DEBUG) Log.d(TAG, "onCreateOptionsMenu() called with: menu = [" + menu + "]");
         super.onCreateOptionsMenu(menu);
 
-        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_holder);
-        if (!(fragment instanceof VideoDetailFragment)) {
-            findViewById(R.id.toolbar).findViewById(R.id.toolbar_spinner).setVisibility(View.GONE);
-        }
+        /**
+         * This code holds the "..." menu, so I have gotten rid of it
+         *
+         * Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_holder);
+         if (!(fragment instanceof VideoDetailFragment)) {
+         findViewById(R.id.toolbar).findViewById(R.id.toolbar_spinner).setVisibility(View.GONE);
+         }
 
-        if (!(fragment instanceof SearchFragment)) {
-            findViewById(R.id.toolbar).findViewById(R.id.toolbar_search_container).setVisibility(View.GONE);
+         if (!(fragment instanceof SearchFragment)) {
+         findViewById(R.id.toolbar).findViewById(R.id.toolbar_search_container).setVisibility(View.GONE);
 
-            MenuInflater inflater = getMenuInflater();
-            inflater.inflate(R.menu.main_menu, menu);
-        }
+         MenuInflater inflater = getMenuInflater();
+         inflater.inflate(R.menu.main_menu, menu);
+         }
 
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(false);
-        }
+         ActionBar actionBar = getSupportActionBar();
+         if (actionBar != null) {
+         actionBar.setDisplayHomeAsUpEnabled(false);
+         }*/
 
         updateDrawerNavigation();
 
-        return true;
+        return false;
     }
 
     @Override
@@ -328,16 +380,16 @@ public class MainActivity extends AppCompatActivity {
             case android.R.id.home:
                 onHomeButtonPressed();
                 return true;
+            case R.id.action_settings:
+                NavigationHelper.openSettings(this);
+                return true;
             case R.id.action_show_downloads:
                 return NavigationHelper.openDownloads(this);
-            case R.id.action_history:
-                NavigationHelper.openStatisticFragment(getSupportFragmentManager());
-                return true;
             case R.id.action_about:
                 NavigationHelper.openAbout(this);
                 return true;
-            case R.id.action_settings:
-                NavigationHelper.openSettings(this);
+            case R.id.action_history:
+                NavigationHelper.openHistory(this);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -362,6 +414,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateDrawerNavigation() {
         if (getSupportActionBar() == null) return;
+        // testing removing this stuff -Samme Qandil
+       // mGridLayoutManager = new GridLayoutManager(this, 10);
+        //mGridLayoutManager.setOrientation(GridLayoutManager.HORIZONTAL);
 
         final Toolbar toolbar = findViewById(R.id.toolbar);
         final DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -380,6 +435,7 @@ public class MainActivity extends AppCompatActivity {
             toolbar.setNavigationOnClickListener(v -> onHomeButtonPressed());
         }
     }
+
 
     private void handleIntent(Intent intent) {
         if (DEBUG) Log.d(TAG, "handleIntent() called with: intent = [" + intent + "]");

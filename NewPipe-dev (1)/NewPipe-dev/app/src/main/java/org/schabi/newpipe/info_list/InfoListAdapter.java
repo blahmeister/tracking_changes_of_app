@@ -1,6 +1,7 @@
 package org.schabi.newpipe.info_list;
 
 import android.app.Activity;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
@@ -17,7 +18,6 @@ import org.schabi.newpipe.info_list.holder.PlaylistInfoItemHolder;
 import org.schabi.newpipe.info_list.holder.PlaylistMiniInfoItemHolder;
 import org.schabi.newpipe.info_list.holder.StreamInfoItemHolder;
 import org.schabi.newpipe.info_list.holder.StreamMiniInfoItemHolder;
-import org.schabi.newpipe.util.FallbackViewHolder;
 import org.schabi.newpipe.util.OnClickGesture;
 
 import java.util.ArrayList;
@@ -239,7 +239,7 @@ public class InfoListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 return new PlaylistInfoItemHolder(infoItemBuilder, parent);
             default:
                 Log.e(TAG, "Trollolo");
-                return new FallbackViewHolder(new View(parent.getContext()));
+                return null;
         }
     }
 
@@ -256,5 +256,6 @@ public class InfoListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         } else if (holder instanceof HFHolder && position == sizeConsideringHeaderOffset() && footer != null && showFooter) {
             ((HFHolder) holder).view = footer;
         }
+
     }
 }

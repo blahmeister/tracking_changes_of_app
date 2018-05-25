@@ -25,7 +25,6 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -63,10 +62,10 @@ import org.schabi.newpipe.extractor.stream.VideoStream;
 import org.schabi.newpipe.fragments.OnScrollBelowItemsListener;
 import org.schabi.newpipe.player.helper.PlaybackParameterDialog;
 import org.schabi.newpipe.player.helper.PlayerHelper;
-import org.schabi.newpipe.player.playqueue.PlayQueueItem;
-import org.schabi.newpipe.player.playqueue.PlayQueueItemBuilder;
-import org.schabi.newpipe.player.playqueue.PlayQueueItemHolder;
-import org.schabi.newpipe.player.playqueue.PlayQueueItemTouchCallback;
+import org.schabi.newpipe.playlist.PlayQueueItem;
+import org.schabi.newpipe.playlist.PlayQueueItemBuilder;
+import org.schabi.newpipe.playlist.PlayQueueItemHolder;
+import org.schabi.newpipe.playlist.PlayQueueItemTouchCallback;
 import org.schabi.newpipe.util.AnimationUtils;
 import org.schabi.newpipe.util.ListHelper;
 import org.schabi.newpipe.util.NavigationHelper;
@@ -115,7 +114,6 @@ public final class MainVideoPlayer extends AppCompatActivity
         if (DEBUG) Log.d(TAG, "onCreate() called with: savedInstanceState = [" + savedInstanceState + "]");
         defaultPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         ThemeHelper.setTheme(this);
-        getWindow().setBackgroundDrawable(new ColorDrawable(Color.BLACK));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) getWindow().setStatusBarColor(Color.BLACK);
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
@@ -849,12 +847,10 @@ public final class MainVideoPlayer extends AppCompatActivity
             if (DEBUG) Log.d(TAG, "onDoubleTap() called with: e = [" + e + "]" + "rawXy = " + e.getRawX() + ", " + e.getRawY() + ", xy = " + e.getX() + ", " + e.getY());
             if (!playerImpl.isPlaying()) return false;
 
-            if (e.getX() > playerImpl.getRootView().getWidth() * 2 / 3) {
+            if (e.getX() > playerImpl.getRootView().getWidth() / 2) {
                 playerImpl.onFastForward();
-            } else if (e.getX() < playerImpl.getRootView().getWidth() / 3) {
-                playerImpl.onFastRewind();
             } else {
-                playerImpl.getPlayPauseButton().performClick();
+                playerImpl.onFastRewind();
             }
 
             return true;

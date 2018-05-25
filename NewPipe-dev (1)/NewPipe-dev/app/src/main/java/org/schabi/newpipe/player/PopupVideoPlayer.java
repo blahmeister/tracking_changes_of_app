@@ -44,7 +44,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.RemoteViews;
 import android.widget.SeekBar;
@@ -65,7 +64,7 @@ import org.schabi.newpipe.player.event.PlayerEventListener;
 import org.schabi.newpipe.player.helper.LockManager;
 import org.schabi.newpipe.player.helper.PlayerHelper;
 import org.schabi.newpipe.player.old.PlayVideoActivity;
-import org.schabi.newpipe.player.playqueue.PlayQueueItem;
+import org.schabi.newpipe.playlist.PlayQueueItem;
 import org.schabi.newpipe.util.ListHelper;
 import org.schabi.newpipe.util.NavigationHelper;
 import org.schabi.newpipe.util.ThemeHelper;
@@ -371,7 +370,6 @@ public final class PopupVideoPlayer extends Service {
     protected class VideoPlayerImpl extends VideoPlayer implements View.OnLayoutChangeListener {
         private TextView resizingIndicator;
         private ImageButton fullScreenButton;
-        private ImageView videoPlayPause;
 
         private View extraOptionsView;
 
@@ -393,8 +391,6 @@ public final class PopupVideoPlayer extends Service {
             resizingIndicator = rootView.findViewById(R.id.resizing_indicator);
             fullScreenButton = rootView.findViewById(R.id.fullScreenButton);
             fullScreenButton.setOnClickListener(v -> onFullScreenButtonClicked());
-            videoPlayPause = rootView.findViewById(R.id.videoPlayPause);
-            videoPlayPause.setOnClickListener(this::onPlayPauseButtonPressed);
 
             extraOptionsView = rootView.findViewById(R.id.extraOptionsView);
             rootView.addOnLayoutChangeListener(this);
@@ -408,10 +404,6 @@ public final class PopupVideoPlayer extends Service {
             view.setFractionalTextSize(SubtitleView.DEFAULT_TEXT_SIZE_FRACTION * captionRatio);
             view.setApplyEmbeddedStyles(captionStyle.equals(CaptionStyleCompat.DEFAULT));
             view.setStyle(captionStyle);
-        }
-
-        private void onPlayPauseButtonPressed(View ib) {
-            onPlayPause();
         }
 
         @Override
@@ -659,7 +651,6 @@ public final class PopupVideoPlayer extends Service {
         public void onPlaying() {
             super.onPlaying();
             updateNotification(R.drawable.ic_pause_white);
-            videoPlayPause.setBackgroundResource(R.drawable.ic_pause_white);
             lockManager.acquireWifiAndCpu();
 
             hideControls(DEFAULT_CONTROLS_DURATION, DEFAULT_CONTROLS_HIDE_TIME);
@@ -675,14 +666,13 @@ public final class PopupVideoPlayer extends Service {
         public void onPaused() {
             super.onPaused();
             updateNotification(R.drawable.ic_play_arrow_white);
-            videoPlayPause.setBackgroundResource(R.drawable.ic_play_arrow_white);
+            showAndAnimateControl(R.drawable.ic_play_arrow_white, false);
             lockManager.releaseWifiAndCpu();
         }
 
         @Override
         public void onPausedSeek() {
             super.onPausedSeek();
-            videoPlayPause.setBackgroundResource(R.drawable.ic_pause_white);
             updateNotification(R.drawable.ic_play_arrow_white);
         }
 
@@ -690,26 +680,9 @@ public final class PopupVideoPlayer extends Service {
         public void onCompleted() {
             super.onCompleted();
             updateNotification(R.drawable.ic_replay_white);
-            videoPlayPause.setBackgroundResource(R.drawable.ic_replay_white);
+            showAndAnimateControl(R.drawable.ic_replay_white, false);
             lockManager.releaseWifiAndCpu();
         }
-
-        @Override
-        public void showControlsThenHide() {
-            videoPlayPause.setVisibility(View.VISIBLE);
-            super.showControlsThenHide();
-        }
-
-        public void showControls(long duration) {
-            videoPlayPause.setVisibility(View.VISIBLE);
-            super.showControls(duration);
-        }
-
-        public void hideControls(final long duration, long delay) {
-            super.hideControlsAndButton(duration, delay, videoPlayPause);
-        }
-
-
 
         /*//////////////////////////////////////////////////////////////////////////
         // Utils
@@ -744,8 +717,6 @@ public final class PopupVideoPlayer extends Service {
                 Log.d(TAG, "onDoubleTap() called with: e = [" + e + "]" + "rawXy = " + e.getRawX() + ", " + e.getRawY() + ", xy = " + e.getX() + ", " + e.getY());
             if (playerImpl == null || !playerImpl.isPlaying()) return false;
 
-            playerImpl.hideControls(0, 0);
-
             if (e.getX() > popupWidth / 2) {
                 playerImpl.onFastForward();
             } else {
@@ -759,12 +730,7 @@ public final class PopupVideoPlayer extends Service {
         public boolean onSingleTapConfirmed(MotionEvent e) {
             if (DEBUG) Log.d(TAG, "onSingleTapConfirmed() called with: e = [" + e + "]");
             if (playerImpl == null || playerImpl.getPlayer() == null) return false;
-            if (playerImpl.isControlsVisible()) {
-                playerImpl.hideControls(100, 100);
-            } else {
-                playerImpl.showControlsThenHide();
-
-            }
+            playerImpl.onPlayPause();
             return true;
         }
 

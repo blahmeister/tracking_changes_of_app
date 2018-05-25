@@ -20,7 +20,7 @@ import org.schabi.newpipe.R;
 import org.schabi.newpipe.database.subscription.SubscriptionEntity;
 import org.schabi.newpipe.report.ErrorActivity;
 import org.schabi.newpipe.report.UserAction;
-import org.schabi.newpipe.local.subscription.SubscriptionService;
+import org.schabi.newpipe.subscription.SubscriptionService;
 
 import java.util.List;
 import java.util.Vector;
@@ -159,7 +159,7 @@ public class SelectChannelFragment extends DialogFragment {
 
             @Override
             public void onError(Throwable exception) {
-                SelectChannelFragment.this.onError(exception);
+                onError(exception);
             }
 
             @Override

@@ -5,8 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?attr/selectableItemBackground"
-    android:clickable="true"
-    android:padding="5dp">
+    android:clickable="false"
+    android:padding="5dp"
+    ><!-- -m sam changed clickable to false -->
 
     <ImageView
         android:id="@+id/itemThumbnailView"
@@ -17,6 +18,7 @@
         android:layout_alignParentTop="true"
         android:layout_marginRight="5dp"
         android:src="@drawable/service"
+        android:visibility="gone"
         tools:ignore="RtlHardcoded"/>
 
     <TextView

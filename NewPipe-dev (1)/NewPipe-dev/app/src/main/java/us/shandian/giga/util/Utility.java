@@ -5,22 +5,17 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.widget.Toast;
 
 import org.schabi.newpipe.R;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -56,47 +51,57 @@ public class Utility {
         }
     }
 
-    public static void writeToFile(@NonNull String fileName, @NonNull Serializable serializable) {
-        ObjectOutputStream objectOutputStream = null;
-
+    public static void writeToFile(String fileName, String content) {
         try {
-            objectOutputStream = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(fileName)));
-            objectOutputStream.writeObject(serializable);
+            writeToFile(fileName, content.getBytes("UTF-8"));
         } catch (Exception e) {
-            //nothing to do
-        } finally {
-            if(objectOutputStream != null) {
-                try {
-                    objectOutputStream.close();
-                } catch (Exception e) {
-                    //nothing to do
-                }
-            }
+
         }
     }
 
-    @Nullable
-    @SuppressWarnings("unchecked")
-    public static <T> T readFromFile(String file) {
-        T object = null;
-        ObjectInputStream objectInputStream = null;
+    public static void writeToFile(String fileName, byte[] content) {
+        File f = new File(fileName);
 
-        try {
-            objectInputStream = new ObjectInputStream(new FileInputStream(file));
-            object = (T) objectInputStream.readObject();
-        } catch (Exception e) {
-            //nothing to do
-        }
-
-        if(objectInputStream != null){
+        if (!f.exists()) {
             try {
-                objectInputStream .close();
+                f.createNewFile();
             } catch (Exception e) {
-                //nothing to do
+
             }
         }
 
-        return object;
+        try {
+            FileOutputStream opt = new FileOutputStream(f, false);
+            opt.write(content, 0, content.length);
+            opt.close();
+        } catch (Exception e) {
+
+        }
+    }
+
+    public static String readFromFile(String file) {
+        try {
+            File f = new File(file);
+
+            if (!f.exists() || !f.canRead()) {
+                return null;
+            }
+
+            BufferedInputStream ipt = new BufferedInputStream(new FileInputStream(f));
+
+            byte[] buf = new byte[512];
+            StringBuilder sb = new StringBuilder();
+
+            while (ipt.available() > 0) {
+                int len = ipt.read(buf, 0, 512);
+                sb.append(new String(buf, 0, len, "UTF-8"));
+            }
+
+            ipt.close();
+            return sb.toString();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Nullable

@@ -82,7 +82,7 @@
         android:id="@+id/navigation_drawer_footer"
         android:layout_width="0dp"
         android:layout_height="60dp"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:layout_alignLeft="@id/navigation"
         android:layout_alignRight="@id/navigation"
         android:layout_alignStart="@id/navigation"
